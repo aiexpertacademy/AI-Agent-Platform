@@ -111,13 +111,23 @@ TYPOGRAPHY:
 }
 
 export async function generateResumeContent(formData, template) {
-  // Custom user-created templates describe their style via the original prompt
-  const templateDesc = template.isCustom
-    ? `CUSTOM USER-DEFINED TEMPLATE
+  const accentColor = template.accentColor || template.style?.accentColor || '#4a69bd'
+
+  let templateDesc
+  if (template.isCustom) {
+    templateDesc = `CUSTOM USER-DEFINED TEMPLATE
 Style prompt: "${template.prompt}"
-Accent color: ${template.accentColor}
+Accent color: ${accentColor}
 Match the visual design language, layout, colors, and typography implied by the style prompt exactly.`
-    : buildTemplateDescription(template)
+  } else if (template.promptStyle) {
+    templateDesc = `TEMPLATE: ${template.name}
+STYLE: ${template.style || ''}
+LAYOUT: ${template.layout || 'single'}
+
+${template.promptStyle}`
+  } else {
+    templateDesc = buildTemplateDescription(template)
+  }
 
   const prompt = `You are an expert CV designer and writer. Create a professional, visually polished CV as a complete HTML file for the following person. Follow the exact template style described below.
 
@@ -163,11 +173,11 @@ ${formData.photo ? 'PROFILE PHOTO: YES — embed this base64 image in an <img> t
 DESIGN REQUIREMENTS
 ━━━━━━━━━━━━━━━━━━━━━━━━
 1. Output a COMPLETE, self-contained HTML file (<!DOCTYPE html> through </html>). No external CDN links. All CSS in a <style> tag in <head>.
-2. Replicate the "${template.name}" visual style EXACTLY — layout, proportions, font stacks, color accents (${template.style.accentColor}), spacing, and section order.
+2. Replicate the "${template.name}" visual style EXACTLY — layout, proportions, font stacks, color accents (${accentColor}), spacing, and section order.
 3. Include A4 @media print styles: body margin 0, no shadows, correct page breaks. Page width is 210mm.
 4. Keep to ONE page unless the work experience genuinely warrants two pages.
 5. Include ALL information provided — do not truncate or omit any section that has data. Skip sections that have "[None provided]" or "[Not specified]".
-6. At the top of the <style> tag, declare: :root { --accent: ${template.style.accentColor}; } and use var(--accent) throughout so the accent color is easily customizable.
+6. At the top of the <style> tag, declare: :root { --accent: ${accentColor}; } and use var(--accent) throughout so the accent color is easily customizable.
 7. Enhance work experience bullet points: use strong action verbs, STAR format, quantify where context allows. Do NOT fabricate numbers — only enhance phrasing.
 8. Skills section: organize into logical categories (e.g., "Languages & Frameworks", "Tools & Platforms", "Soft Skills").
 9. If projects are provided: render them as a "Projects" section with project name bold, tech stack in smaller text, and 1-2 bullet points.

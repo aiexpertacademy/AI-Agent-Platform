@@ -7,6 +7,7 @@ import TemplateSelector from './TemplateSelector'
 import ResumePreview from './ResumePreview'
 import SavedResumes from './SavedResumes'
 import CustomTemplateCreator from './CustomTemplateCreator'
+import ResumeTemplateGallery from './ResumeTemplateGallery'
 import {
   Sparkles,
   Download,
@@ -23,6 +24,7 @@ import {
   Code2,
   Wand2,
   ArrowLeft,
+  LayoutTemplate,
 } from 'lucide-react'
 
 const emptyForm = {
@@ -48,6 +50,9 @@ export default function ResumeBuilder() {
   const { currentUser } = useAuth()
   const iframeRef = useRef(null)
 
+  // Phase: 'gallery' → pick template, 'builder' → fill form
+  const [phase, setPhase] = useState('gallery')
+
   const [formData, setFormData] = useState(emptyForm)
   const [selectedTemplate, setSelectedTemplate] = useState(templates[0])
   const [generated, setGenerated] = useState(null) // HTML string | null
@@ -65,6 +70,11 @@ export default function ResumeBuilder() {
   const [showCreator, setShowCreator] = useState(false)
   const [templateSaving, setTemplateSaving] = useState(false)
 
+  // Seed resume templates on first load
+  useEffect(() => {
+    fetch('/api/resume-templates/seed', { method: 'POST' }).catch(() => {})
+  }, [])
+
   // Load custom templates from MongoDB on mount / user change
   useEffect(() => {
     if (!currentUser) { setCustomTemplates([]); return }
@@ -72,6 +82,16 @@ export default function ResumeBuilder() {
       .then(list => setCustomTemplates(list.map(t => ({ ...t, isCustom: true }))))
       .catch(err => console.error('Failed to load custom templates:', err.message))
   }, [currentUser])
+
+  function handlePickTemplate(dbTemplate) {
+    setSelectedTemplate(dbTemplate)
+    setPhase('builder')
+  }
+
+  function handlePickScratch() {
+    setSelectedTemplate(templates[0])
+    setPhase('builder')
+  }
 
   async function handleSaveCustomTemplate(tmpl) {
     if (!currentUser) { setError('Please log in to save templates'); return }
@@ -241,12 +261,12 @@ export default function ResumeBuilder() {
   function handleLoadResume(resume) {
     setFormData(resume.formData || emptyForm)
     const g = resume.generated
-    // Handle both old JSON format and new HTML string format
     setGenerated(typeof g === 'string' ? g : null)
     const tmpl = templates.find((t) => t.id === resume.templateId) || templates[0]
     setSelectedTemplate(tmpl)
     setActiveResumeId(resume.id)
     setShowSaved(false)
+    setPhase('builder')
     setSuccess('Resume loaded!')
     setTimeout(() => setSuccess(''), 3000)
   }
@@ -263,6 +283,47 @@ export default function ResumeBuilder() {
   const textareaCls = `${inputCls} resize-none`
   const labelCls = 'block text-sm font-medium text-gray-300 mb-1'
   const hintCls = 'text-xs text-gray-500 mt-1'
+
+  // ── Gallery phase ─────────────────────────────────────────────────────────────
+  if (phase === 'gallery' && !showCreator) {
+    return (
+      <div>
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h1 className="text-2xl font-bold text-white flex items-center gap-2">
+              <FileText className="w-7 h-7 text-indigo-400" />
+              Resume Builder
+            </h1>
+            <p className="text-gray-400 text-sm mt-1">AI-powered professional resume generator</p>
+          </div>
+          <div className="flex gap-2">
+            <button
+              onClick={() => setShowCreator(true)}
+              className="flex items-center gap-2 px-3 py-2 bg-violet-600/20 hover:bg-violet-600/30 border border-violet-500/40 text-violet-300 rounded-lg text-sm transition-colors cursor-pointer"
+            >
+              <Wand2 className="w-4 h-4" /> AI Designer
+            </button>
+            <button
+              onClick={() => setShowSaved(!showSaved)}
+              className="flex items-center gap-2 px-3 py-2 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-lg text-sm transition-colors cursor-pointer"
+            >
+              {showSaved ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+              Saved
+            </button>
+          </div>
+        </div>
+        {showSaved && (
+          <div className="mb-6 bg-gray-900 border border-gray-800 rounded-xl p-4">
+            <SavedResumes onLoad={(resume) => { handleLoadResume(resume); setPhase('builder') }} />
+          </div>
+        )}
+        <ResumeTemplateGallery
+          onUseTemplate={handlePickTemplate}
+          onScratch={handlePickScratch}
+        />
+      </div>
+    )
+  }
 
   // ── Template Designer full-width view ────────────────────────────────────────
   if (showCreator) {
@@ -304,19 +365,38 @@ export default function ResumeBuilder() {
     <div>
       {/* Top bar */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-        <div>
-          <h1 className="text-2xl font-bold text-white flex items-center gap-2">
-            <FileText className="w-7 h-7 text-indigo-400" />
-            Resume Builder
-          </h1>
-          <p className="text-gray-400 text-sm mt-1">AI-powered professional resume generator with 30 templates</p>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => setPhase('gallery')}
+            className="p-2 hover:bg-gray-800 rounded-lg transition-colors cursor-pointer"
+            title="Back to templates"
+          >
+            <ArrowLeft className="w-5 h-5 text-gray-400" />
+          </button>
+          <div>
+            <h1 className="text-2xl font-bold text-white flex items-center gap-2">
+              <FileText className="w-7 h-7 text-indigo-400" />
+              Resume Builder
+            </h1>
+            {/* Selected template badge */}
+            <div className="flex items-center gap-2 mt-1">
+              <div className="w-2.5 h-2.5 rounded-full" style={{ background: selectedTemplate.accentColor || '#6366f1' }} />
+              <span className="text-gray-400 text-sm">{selectedTemplate.name}</span>
+              <button
+                onClick={() => setPhase('gallery')}
+                className="text-indigo-400 hover:text-indigo-300 text-xs underline cursor-pointer transition-colors"
+              >
+                Change
+              </button>
+            </div>
+          </div>
         </div>
         <div className="flex items-center gap-2">
           <button
             onClick={() => setShowCreator(true)}
             className="flex items-center gap-2 px-3 py-2 bg-violet-600/20 hover:bg-violet-600/30 border border-violet-500/40 text-violet-300 rounded-lg text-sm transition-colors cursor-pointer"
           >
-            <Wand2 className="w-4 h-4" /> Design Template
+            <Wand2 className="w-4 h-4" /> AI Designer
           </button>
           <button onClick={handleReset} className="flex items-center gap-2 px-3 py-2 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-lg text-sm transition-colors cursor-pointer">
             <RotateCcw className="w-4 h-4" /> New

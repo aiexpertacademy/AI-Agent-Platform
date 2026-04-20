@@ -1,0 +1,123 @@
+@import "tailwindcss";
+
+/*
+  Theme system: data-theme="light" remaps all gray-based colors.
+  All existing tool pages use gray-950/900/800/700 for bg/cards/inputs/borders
+  and text-white/gray-300/400/500 for text. This CSS layer overrides them
+  in light mode without touching any component file.
+*/
+
+/* ===== Light Mode Overrides ===== */
+[data-theme="light"] {
+
+  /* === Backgrounds === */
+
+  /* Page background: gray-950 → white */
+  .bg-gray-950 { background-color: #f8fafc !important; }
+
+  /* Card background: gray-900 → white */
+  .bg-gray-900 { background-color: #ffffff !important; }
+  .bg-gray-900\/80 { background-color: rgba(255,255,255,0.9) !important; }
+  .bg-gray-900\/50 { background-color: rgba(255,255,255,0.6) !important; }
+
+  /* Input/secondary bg: gray-800 → light gray */
+  .bg-gray-800 { background-color: #f1f5f9 !important; }
+  .bg-gray-800\/50 { background-color: rgba(241,245,249,0.6) !important; }
+  .bg-gray-800\/60 { background-color: rgba(241,245,249,0.7) !important; }
+  .bg-gray-800\/40 { background-color: rgba(241,245,249,0.5) !important; }
+  .bg-gray-800\/30 { background-color: rgba(241,245,249,0.4) !important; }
+
+  /* Deeper dark bg → light */
+  .bg-gray-950\/50 { background-color: rgba(248,250,252,0.6) !important; }
+  .bg-gray-700 { background-color: #e2e8f0 !important; }
+  .bg-gray-600 { background-color: #cbd5e1 !important; }
+
+  /* Code block backgrounds */
+  .bg-\[\#1d1f21\] { background-color: #f8fafc !important; }
+  .bg-\[\#16181a\] { background-color: #f1f5f9 !important; }
+
+  /* Black overlays lighter */
+  .bg-black { background-color: #1e293b !important; }
+  .bg-black\/70 { background-color: rgba(30,41,59,0.7) !important; }
+  .bg-black\/80 { background-color: rgba(30,41,59,0.8) !important; }
+  .bg-black\/60 { background-color: rgba(30,41,59,0.6) !important; }
+  .bg-black\/50 { background-color: rgba(30,41,59,0.5) !important; }
+
+  /* === Borders === */
+  .border-gray-800 { border-color: #e2e8f0 !important; }
+  .border-gray-700 { border-color: #cbd5e1 !important; }
+  .border-gray-700\/50 { border-color: rgba(203,213,225,0.5) !important; }
+  .border-gray-700\/40 { border-color: rgba(203,213,225,0.4) !important; }
+
+  /* === Text Colors === */
+  .text-white { color: #0f172a !important; }
+  .text-gray-200 { color: #1e293b !important; }
+  .text-gray-300 { color: #334155 !important; }
+  .text-gray-400 { color: #64748b !important; }
+  .text-gray-500 { color: #94a3b8 !important; }
+  .text-gray-600 { color: #94a3b8 !important; }
+
+  /* Placeholder text */
+  .placeholder-gray-500::placeholder { color: #94a3b8 !important; }
+
+  /* === Form elements === */
+  input, textarea, select {
+    color: #0f172a !important;
+  }
+  input::placeholder, textarea::placeholder {
+    color: #94a3b8 !important;
+  }
+
+  /* === Scrollbar === */
+  ::-webkit-scrollbar-track { background: #f1f5f9; }
+  ::-webkit-scrollbar-thumb { background: #cbd5e1; }
+
+  /* === Dividers === */
+  .divide-gray-800 > * + * { border-color: #e2e8f0 !important; }
+  .border-t.border-gray-800 { border-color: #e2e8f0 !important; }
+  .border-b.border-gray-800 { border-color: #e2e8f0 !important; }
+  .border-r.border-gray-800 { border-color: #e2e8f0 !important; }
+  .border-l.border-gray-800 { border-color: #e2e8f0 !important; }
+
+  /* === Shadows — add subtle shadows for depth === */
+  .bg-gray-900.border { box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04); }
+
+  /* === Hover states === */
+  .hover\:bg-gray-800:hover { background-color: #e2e8f0 !important; }
+  .hover\:bg-gray-700:hover { background-color: #cbd5e1 !important; }
+  .hover\:text-white:hover { color: #0f172a !important; }
+  .hover\:border-gray-700:hover { border-color: #cbd5e1 !important; }
+  .hover\:border-gray-600:hover { border-color: #94a3b8 !important; }
+  .hover\:border-gray-500:hover { border-color: #64748b !important; }
+  .group:hover .group-hover\:bg-indigo-600 { background-color: #4f46e5 !important; }
+
+  /* === Ring / Focus states === */
+  .focus\:ring-2:focus { --tw-ring-opacity: 1; }
+
+  /* === Prism code theme override === */
+  code[class*="language-"], pre[class*="language-"] {
+    color: #1e293b !important;
+  }
+  .token.comment { color: #64748b !important; }
+  .token.keyword { color: #7c3aed !important; }
+  .token.string { color: #059669 !important; }
+  .token.function { color: #2563eb !important; }
+  .token.number { color: #d97706 !important; }
+  .token.operator { color: #dc2626 !important; }
+  .token.punctuation { color: #475569 !important; }
+
+  /* Keep colored elements intact — accent colors should NOT change */
+  /* These stay as-is: bg-indigo-600, bg-violet-600, bg-green-600, etc. */
+  /* text-indigo-400, text-violet-400, etc stay as-is */
+}
+
+/* ===== Global Styles (both themes) ===== */
+* { transition: background-color 0.2s ease, border-color 0.2s ease, color 0.15s ease; }
+html { scroll-behavior: smooth; }
+body { font-family: system-ui, -apple-system, sans-serif; }
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #374151; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #4b5563; }

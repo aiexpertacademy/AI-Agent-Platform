@@ -106,6 +106,23 @@
   .token.operator { color: #dc2626 !important; }
   .token.punctuation { color: #475569 !important; }
 
+  /* === Hardcoded dark bg overrides (ImageGenerator canvas, CodeAssistant editor) === */
+  .bg-\[\#080810\] { background-color: #f1f5f9 !important; }
+  .bg-\[\#0a0a12\] { background-color: #f1f5f9 !important; }
+
+  /* === gray-950 opacity variants === */
+  .bg-gray-950\/30 { background-color: rgba(248,250,252,0.5) !important; }
+  .bg-gray-950\/40 { background-color: rgba(248,250,252,0.6) !important; }
+  .bg-gray-950\/60 { background-color: rgba(248,250,252,0.75) !important; }
+
+  /* === Prompt textarea themed backgrounds === */
+  .bg-indigo-950\/30 { background-color: rgba(238,242,255,0.7) !important; }
+  .bg-red-950\/20 { background-color: rgba(255,241,242,0.6) !important; }
+
+  /* === Darker text shades === */
+  .text-gray-700 { color: #64748b !important; }
+  .text-gray-800 { color: #94a3b8 !important; }
+
   /* Keep colored elements intact — accent colors should NOT change */
   /* These stay as-is: bg-indigo-600, bg-violet-600, bg-green-600, etc. */
   /* text-indigo-400, text-violet-400, etc stay as-is */

@@ -822,16 +822,16 @@ const RIGHT_TABS = [
 export default function WebScraper() {
   const [activeMode,   setActiveMode]   = useState('builder')
   const [rightTab,     setRightTab]     = useState('log')
-  const [tasks,        setTasks]        = useState(INITIAL_TASKS)
-  const [selectedId,   setSelectedId]   = useState(1)
+  const [tasks,        setTasks]        = useState([])
+  const [selectedId,   setSelectedId]   = useState(null)
   const [proxies,      setProxies]      = useState(INITIAL_PROXY_POOL)
-  const [results,      setResults]      = useState(INITIAL_RESULTS)
-  const [schedules,    setSchedules]    = useState(INITIAL_SCHEDULES)
-  const [logs,         setLogs]         = useState(SEED_LOG)
+  const [results,      setResults]      = useState([])
+  const [schedules,    setSchedules]    = useState([])
+  const [logs,         setLogs]         = useState([{ t: nowTime(), type: 'info', msg: 'Web Scraper ready — create a task to begin.' }])
   const [toast,        setToast]        = useState(null)
   const [showNewTask,  setShowNewTask]  = useState(false)
 
-  const selectedTask = tasks.find(t => t.id === selectedId) || tasks[0]
+  const selectedTask = tasks.find(t => t.id === selectedId) || tasks[0] || null
 
   const addLog = useCallback((entry) => {
     setLogs(prev => [{ t: nowTime(), ...entry }, ...prev].slice(0, 100))
@@ -844,7 +844,7 @@ export default function WebScraper() {
     setTasks(prev => [...prev, task])
     setSelectedId(task.id)
     setActiveMode('builder')
-    showToast(`Task "${task.name}" created. Configure and click Start.`)
+    showToast(`Task "${task.name}" created — enter your URL and click Start.`)
   }
 
   return (
@@ -898,7 +898,20 @@ export default function WebScraper() {
             })}
           </div>
           <div className="flex-1 min-h-0">
-            {activeMode === 'builder'   && <BuilderView task={selectedTask} tasks={tasks} setTasks={setTasks} setActiveMode={setActiveMode} addLog={addLog} showToast={showToast} />}
+            {activeMode === 'builder' && !selectedTask && (
+              <div className="flex flex-col items-center justify-center h-full gap-4 text-center overflow-y-auto">
+                <Globe className="w-14 h-14 text-gray-700" />
+                <div>
+                  <p className="text-gray-300 font-semibold mb-1">No scraping tasks yet</p>
+                  <p className="text-gray-600 text-sm">Create a task to start scraping any website</p>
+                </div>
+                <button onClick={() => setShowNewTask(true)}
+                  className="flex items-center gap-2 px-5 py-2.5 bg-violet-600 hover:bg-violet-500 text-white text-sm font-medium rounded-xl cursor-pointer transition-colors">
+                  <Plus className="w-4 h-4" /> Create First Task
+                </button>
+              </div>
+            )}
+            {activeMode === 'builder' && selectedTask && <BuilderView task={selectedTask} tasks={tasks} setTasks={setTasks} setActiveMode={setActiveMode} addLog={addLog} showToast={showToast} />}
             {activeMode === 'ghost'     && <GhostModeView proxies={proxies} setProxies={setProxies} showToast={showToast} />}
             {activeMode === 'extract'   && <ExtractionView showToast={showToast} />}
             {activeMode === 'results'   && <ResultsView results={results} setResults={setResults} taskName={selectedTask.name} showToast={showToast} />}

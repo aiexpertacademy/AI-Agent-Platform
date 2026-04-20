@@ -31,7 +31,6 @@ import {
   Film,
   Cpu,
   Layers,
-  Activity,
 } from 'lucide-react'
 import ToolCard from '../components/ToolCard'
 import { useAuth } from '../contexts/AuthContext'
@@ -73,7 +72,6 @@ const tools = [
 const stats = [
   { icon: Cpu, label: 'AI Models', value: '12+', color: '#6366f1' },
   { icon: Layers, label: 'Tools Available', value: '31', color: '#ec4899' },
-  { icon: Activity, label: 'Powered by', value: 'Gemini', color: '#10b981' },
   { icon: Zap, label: 'Generation', value: 'Real-time', color: '#f59e0b' },
 ]
 
@@ -114,7 +112,7 @@ export default function Dashboard() {
               WebkitTextFillColor: 'transparent',
             }}>{firstName}</span> 👋
           </h1>
-          <p className="text-gray-400 text-sm">Choose from {tools.length} AI-powered tools below — all running on Gemini</p>
+          <p className="text-gray-400 text-sm">Choose from {tools.length} AI-powered tools below — powered by the latest AI models</p>
 
           {/* Stats chips */}
           <div className="flex flex-wrap gap-3 mt-5">

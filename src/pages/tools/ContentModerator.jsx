@@ -4,7 +4,7 @@ import {
   Eye, MessageSquare, Image, Video, Mic, BarChart3, Users,
   FileText, Send, Bell, ToggleLeft, ToggleRight, Plus,
   Activity, Lock, Globe, Smile, Frown, Meh, Flag,
-  Download, Share2, BookOpen, Info, Trash2,
+  Download, Share2, BookOpen, Info, Trash2, Upload,
 } from 'lucide-react'
 import ToolLayout from '../../components/ToolLayout'
 import { callGemini } from '../../config/gemini'
@@ -546,6 +546,14 @@ export default function ContentModerator() {
   const [activeMode, setActiveMode] = useState('queue')
   const [rightTab, setRightTab] = useState('log')
   const [selectedQueue, setSelectedQueue] = useState('human-review')
+  const [uploadedFileName, setUploadedFileName] = useState(null)
+
+  function handleContentUpload(e) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setUploadedFileName(file.name)
+    e.target.value = ''
+  }
 
   return (
     <ToolLayout icon={Shield} title="Content Moderator" description="AI-powered multimodal moderation — 50 languages, PII shield, policy engine" color="#ef4444">
@@ -555,6 +563,18 @@ export default function ContentModerator() {
         <div className="w-56 flex flex-col bg-gray-900 border border-gray-800 rounded-2xl overflow-hidden shrink-0">
           <div className="px-3 pt-3 pb-2 border-b border-gray-800">
             <p className="text-[10px] text-gray-500 uppercase tracking-wider font-semibold">Moderation Queues</p>
+          </div>
+          <div className="px-3 py-2 border-b border-gray-800">
+            <label className="flex items-center gap-2 px-3 py-2 bg-red-600/10 hover:bg-red-600/15 border border-red-500/20 text-red-400 text-xs font-medium rounded-xl cursor-pointer transition-colors w-full">
+              <Upload className="w-3.5 h-3.5 flex-shrink-0" />
+              <span className="truncate">{uploadedFileName || 'Upload Content'}</span>
+              <input
+                type="file"
+                accept=".txt,.csv,.json,.html,.png,.jpg,.jpeg,.mp4,.mp3,.pdf"
+                onChange={handleContentUpload}
+                className="hidden"
+              />
+            </label>
           </div>
           <div className="flex-1 overflow-y-auto p-2 space-y-1">
             {QUEUES.map(q => (

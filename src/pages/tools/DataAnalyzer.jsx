@@ -970,6 +970,28 @@ export default function DataAnalyzer() {
   const [nlqInput, setNlqInput] = useState('')
   const [showConnector, setShowConnector] = useState(false)
   const [selectedSource, setSelectedSource] = useState(1)
+  const [sources, setSources] = useState(MOCK_SOURCES)
+
+  function handleFileUpload(e) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    const ext = file.name.split('.').pop().toLowerCase()
+    const iconMap = { xlsx: FileSpreadsheet, csv: FileSpreadsheet, json: FileJson, pdf: FileScan, parquet: HardDrive }
+    const colorMap = { xlsx: '#22c55e', csv: '#22c55e', json: '#f59e0b', pdf: '#ef4444', parquet: '#06b6d4' }
+    const newSrc = {
+      id: Date.now(),
+      type: ext,
+      icon: iconMap[ext] || FileSpreadsheet,
+      label: file.name,
+      color: colorMap[ext] || '#8b5cf6',
+      rows: 0,
+      status: 'live',
+      lastSync: 'just now',
+    }
+    setSources(prev => [...prev, newSrc])
+    setSelectedSource(newSrc.id)
+    e.target.value = ''
+  }
 
   function handleNlqSubmit(e) {
     e.preventDefault()
@@ -988,7 +1010,7 @@ export default function DataAnalyzer() {
             <p className="text-[10px] text-gray-500 uppercase tracking-wider font-semibold">Connected Sources</p>
           </div>
           <div className="flex-1 overflow-y-auto p-2 space-y-1">
-            {MOCK_SOURCES.map(src => {
+            {sources.map(src => {
               const Icon = src.icon
               return (
                 <button
@@ -1006,7 +1028,7 @@ export default function DataAnalyzer() {
               )
             })}
           </div>
-          <div className="p-2 border-t border-gray-800">
+          <div className="p-2 border-t border-gray-800 space-y-2">
             <div className="relative">
               <button
                 onClick={() => setShowConnector(p => !p)}
@@ -1025,6 +1047,15 @@ export default function DataAnalyzer() {
                 </div>
               )}
             </div>
+            <label className="flex items-center justify-center gap-2 px-3 py-2 bg-violet-600/10 hover:bg-violet-600/20 border border-violet-500/20 text-violet-400 text-xs font-medium rounded-xl cursor-pointer transition-colors w-full">
+              <Upload className="w-3.5 h-3.5" /> Upload file
+              <input
+                type="file"
+                accept=".csv,.xlsx,.json,.parquet,.pdf,.txt"
+                onChange={handleFileUpload}
+                className="hidden"
+              />
+            </label>
           </div>
         </div>
 

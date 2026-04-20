@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react'
 import {
   Code2, ShieldAlert, BarChart2, Package, MessageSquare,
   Loader2, Copy, Check, Folder, GitBranch, Lock, Eye,
-  Send, Search, Database, Layout, Activity,
+  Send, Search, Database, Layout, Activity, Upload,
   FileCode, GitPullRequest, GitMerge, Zap, Bug,
   ChevronRight,
 } from 'lucide-react'
@@ -190,6 +190,19 @@ export default function CodeAssistant() {
   const [copied,  setCopied]  = useState(null)
 
   const chatEndRef = useRef(null)
+
+  function handleFileUpload(e) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    const reader = new FileReader()
+    reader.onload = ev => {
+      setCode(ev.target.result)
+      setActiveFile(file.name)
+      setEditorTab('editor')
+    }
+    reader.readAsText(file)
+    e.target.value = ''
+  }
   useEffect(() => { chatEndRef.current?.scrollIntoView({ behavior: 'smooth' }) }, [chatMessages])
 
   function doCopy(text, id) {
@@ -455,6 +468,19 @@ Answer concisely. Reference specific files and line numbers when relevant.`,
                 <span className="text-[9px] text-gray-700 flex-shrink-0">{file.lines}L</span>
               </button>
             ))}
+          </div>
+
+          {/* Upload button */}
+          <div className="p-3 border-t border-gray-800 flex-shrink-0">
+            <label className="flex items-center justify-center gap-2 px-3 py-2 bg-emerald-600/10 hover:bg-emerald-600/20 border border-emerald-500/25 text-emerald-400 text-xs font-medium rounded-xl cursor-pointer transition-colors w-full">
+              <Upload className="w-3.5 h-3.5" /> Upload File
+              <input
+                type="file"
+                accept=".js,.ts,.jsx,.tsx,.py,.go,.rs,.java,.cpp,.c,.cs,.rb,.php,.sql,.json,.yaml,.yml,.toml,.md,.txt"
+                onChange={handleFileUpload}
+                className="hidden"
+              />
+            </label>
           </div>
         </div>
 

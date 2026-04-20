@@ -1,4 +1,4 @@
-const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY
+import { callGemini } from '../../config/gemini'
 
 // ─── Custom template from user prompt ────────────────────────────────────────
 
@@ -29,25 +29,7 @@ DESIGN REQUIREMENTS:
 
 Output ONLY the raw HTML starting with <!DOCTYPE html>. No explanation, no markdown fences.`
 
-  const response = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`,
-    {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        contents: [{ parts: [{ text: prompt }] }],
-        generationConfig: { temperature: 0.5, maxOutputTokens: 8192 },
-      }),
-    }
-  )
-
-  if (!response.ok) {
-    const err = await response.json()
-    throw new Error(err.error?.message || 'Template generation failed')
-  }
-
-  const data = await response.json()
-  let text = data.candidates?.[0]?.content?.parts?.[0]?.text
+  let text = await callGemini(prompt, { temperature: 0.5, maxTokens: 8192 })
   if (!text) throw new Error('No template generated')
 
   // Strip markdown fences if present
@@ -187,29 +169,7 @@ DESIGN REQUIREMENTS
 
 Output ONLY the raw HTML — no explanation, no markdown fences, no code blocks. Start directly with <!DOCTYPE html> and end with </html>.`
 
-  const response = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`,
-    {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        contents: [{ parts: [{ text: prompt }] }],
-        generationConfig: {
-          temperature: 0.4,
-          maxOutputTokens: 8192,
-        },
-      }),
-    }
-  )
-
-  if (!response.ok) {
-    const err = await response.json()
-    throw new Error(err.error?.message || 'Gemini API request failed')
-  }
-
-  const data = await response.json()
-  let text = data.candidates?.[0]?.content?.parts?.[0]?.text
-
+  let text = await callGemini(prompt, { temperature: 0.4, maxTokens: 8192 })
   if (!text) throw new Error('No content generated')
 
   // Strip markdown code fences if the model wraps the output despite instructions

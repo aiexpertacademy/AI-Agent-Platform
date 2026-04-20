@@ -10,7 +10,7 @@ import {
 import ToolLayout from '../../components/ToolLayout'
 import { callGemini } from '../../config/gemini'
 
-const API = 'http://localhost:3001'
+const API = ''
 
 // ─── Category definitions ─────────────────────────────────────────────────────
 const CATEGORIES = [

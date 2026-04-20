@@ -46,6 +46,7 @@ import FakeNewsDetector from './pages/tools/FakeNewsDetector'
 import SpamDetector from './pages/tools/SpamDetector'
 import AdGenerator from './pages/tools/AdGenerator'
 import AdVideoGenerator from './pages/tools/AdVideoGenerator'
+import WhatsAppChatbot from './pages/tools/WhatsAppChatbot'
 
 function AuthRedirect({ children }) {
   const { currentUser, loading } = useAuth()
@@ -109,6 +110,7 @@ export default function App() {
         <Route path="tools/spam-detector" element={<SpamDetector />} />
         <Route path="tools/ad-generator" element={<AdGenerator />} />
         <Route path="tools/ad-video-generator" element={<AdVideoGenerator />} />
+        <Route path="tools/whatsapp-chatbot" element={<WhatsAppChatbot />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

@@ -31,6 +31,7 @@ import {
   Film,
   Cpu,
   Layers,
+  Phone,
 } from 'lucide-react'
 import ToolCard from '../components/ToolCard'
 import { useAuth } from '../contexts/AuthContext'
@@ -67,11 +68,12 @@ const tools = [
   { icon: ScanEye, title: 'Instagram Spam Detector', description: 'Detect spam, bots & deception in Instagram comments and bios.', color: '#e11d48', path: '/tools/spam-detector' },
   { icon: Megaphone, title: 'AI Ad Generator', description: 'Generate complete ads with AI copy, design brief & live preview.', color: '#f43f5e', path: '/tools/ad-generator' },
   { icon: Film, title: 'AI Ad Video Generator', description: 'Generate stunning ad videos with AI using templates & Veo 3.1.', color: '#14b8a6', path: '/tools/ad-video-generator' },
+  { icon: Phone, title: 'WhatsApp AI Chatbot', description: 'Build & deploy AI-powered WhatsApp bots for your business — no code required.', color: '#25D366', path: '/tools/whatsapp-chatbot' },
 ]
 
 const stats = [
   { icon: Cpu, label: 'AI Models', value: '12+', color: '#6366f1' },
-  { icon: Layers, label: 'Tools Available', value: '31', color: '#ec4899' },
+  { icon: Layers, label: 'Tools Available', value: '32', color: '#ec4899' },
   { icon: Zap, label: 'Generation', value: 'Real-time', color: '#f59e0b' },
 ]
 

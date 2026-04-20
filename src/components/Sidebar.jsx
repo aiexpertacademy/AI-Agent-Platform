@@ -10,6 +10,7 @@ import {
   Database,
   Settings,
   Sparkles,
+  Phone,
 } from 'lucide-react'
 
 const navItems = [
@@ -22,6 +23,7 @@ const navItems = [
   { to: '/documents', icon: FileText, label: 'Documents' },
   { to: '/data', icon: Database, label: 'Data' },
   { to: '/playground', icon: Sparkles, label: 'Playground' },
+  { to: '/tools/whatsapp-chatbot', icon: Phone, label: 'WhatsApp Chatbot' },
   { to: '/settings', icon: Settings, label: 'Settings' },
 ]
 

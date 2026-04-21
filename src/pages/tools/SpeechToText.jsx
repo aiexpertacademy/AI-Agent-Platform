@@ -26,11 +26,25 @@ export default function SpeechToText() {
     { code: 'ru-RU', label: 'Russian' },
   ]
 
-  function startListening() {
+  async function startListening() {
     setError('')
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition
     if (!SpeechRecognition) {
       setError('Speech Recognition is not supported in this browser. Please use Chrome or Edge.')
+      return
+    }
+
+    // Request mic permission explicitly so the browser shows the allow prompt
+    try {
+      await navigator.mediaDevices.getUserMedia({ audio: true })
+    } catch (err) {
+      if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
+        setError('Microphone access denied. Click the lock/camera icon in your browser address bar, set Microphone to "Allow", then refresh and try again.')
+      } else if (err.name === 'NotFoundError' || err.name === 'DevicesNotFoundError') {
+        setError('No microphone detected. Please plug in a microphone or headset and try again.')
+      } else {
+        setError(`Microphone error: ${err.message}. Make sure no other app (Zoom, Teams, etc.) is using your mic.`)
+      }
       return
     }
 
@@ -56,11 +70,12 @@ export default function SpeechToText() {
 
     recognition.onerror = (event) => {
       const msgs = {
-        'not-allowed': 'Microphone access denied. Click the lock icon in your browser address bar and allow microphone access, then try again.',
-        'audio-capture': 'No microphone found. Please connect a microphone and try again.',
+        'not-allowed': 'Microphone access denied. Click the lock icon in your address bar, set Microphone to "Allow", then refresh.',
+        'audio-capture': 'Browser cannot access your microphone. Make sure no other app (Zoom, Teams, etc.) is using it, then try again.',
         'no-speech': 'No speech detected. Please speak clearly and try again.',
-        'network': 'Network error during speech recognition. Check your connection.',
+        'network': 'Network error during speech recognition. Check your internet connection.',
         'aborted': '',
+        'service-not-allowed': 'Speech recognition not allowed. Make sure you are on HTTPS or localhost.',
       }
       const msg = msgs[event.error] ?? `Speech recognition error: ${event.error}. Try using Chrome or Edge.`
       if (msg) setError(msg)

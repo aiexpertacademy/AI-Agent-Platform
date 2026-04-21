@@ -293,7 +293,7 @@ Return ONLY valid JSON (no markdown, no code fences):
   }
 
   // STT — Speech to Text (real-time voice input with live translation)
-  function toggleListening() {
+  async function toggleListening() {
     if (listening) {
       listeningRef.current = false
       recognitionRef.current?.stop()
@@ -302,7 +302,18 @@ Return ONLY valid JSON (no markdown, no code fences):
     }
 
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition
-    if (!SpeechRecognition) { alert('Speech recognition not supported in this browser'); return }
+    if (!SpeechRecognition) { alert('Speech recognition not supported. Please use Chrome or Edge.'); return }
+
+    try {
+      await navigator.mediaDevices.getUserMedia({ audio: true })
+    } catch (err) {
+      if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
+        alert('Microphone access denied. Click the lock icon in your address bar, set Microphone to "Allow", then refresh.')
+      } else {
+        alert(`Cannot access microphone: ${err.message}. Make sure no other app is using it.`)
+      }
+      return
+    }
 
     const recognition = new SpeechRecognition()
     recognition.lang = getLangCode(from)

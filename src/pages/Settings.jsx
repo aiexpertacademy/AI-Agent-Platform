@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import {
-  User, Key, Coins, Palette, Bell, Shield, ChevronRight,
-  Save, Eye, EyeOff, Copy, Check, RefreshCw, TrendingUp,
+  User, Zap, Palette, Bell, Shield,
+  Save, Check, RefreshCw, TrendingUp,
   TrendingDown, Sun, Moon, Zap, Crown, Star, Plus, Trash2,
   Upload, Mail, Lock, Globe, AlertTriangle, CheckCircle,
 } from 'lucide-react'
@@ -11,7 +11,6 @@ import { useCredits } from '../contexts/CreditContext'
 
 const SECTIONS = [
   { id: 'profile', label: 'Profile', icon: User },
-  { id: 'apikeys', label: 'API Keys', icon: Key },
   { id: 'credits', label: 'Credits & Coins', icon: Zap },
   { id: 'appearance', label: 'Appearance', icon: Palette },
   { id: 'notifications', label: 'Notifications', icon: Bell },
@@ -84,94 +83,6 @@ function ProfileSection({ currentUser }) {
           className="flex items-center gap-2 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-medium rounded-xl transition-colors">
           {saved ? <><CheckCircle className="w-4 h-4" />Saved!</> : <><Save className="w-4 h-4" />Save Changes</>}
         </button>
-      </div>
-    </SectionCard>
-  )
-}
-
-function maskKey(val) {
-  if (!val) return null
-  if (val.length <= 8) return '••••••••'
-  return val.slice(0, 6) + '••••••••' + val.slice(-4)
-}
-
-function ApiKeysSection() {
-  const [show, setShow] = useState({})
-
-  const envKeys = [
-    {
-      key: 'gemini',
-      label: 'Google Gemini API Key',
-      value: import.meta.env.VITE_GEMINI_API_KEY,
-      hint: 'Used by all AI generation tools',
-      color: '#4285f4',
-      badge: 'Primary',
-    },
-    {
-      key: 'newsapi',
-      label: 'NewsAPI Key',
-      value: import.meta.env.VITE_NEWS_API_KEY,
-      hint: 'Used by Latest News tool',
-      color: '#ef4444',
-      badge: null,
-    },
-    {
-      key: 'firebase',
-      label: 'Firebase API Key',
-      value: import.meta.env.VITE_FIREBASE_API_KEY,
-      hint: 'Used for Google OAuth authentication',
-      color: '#f59e0b',
-      badge: null,
-    },
-  ]
-
-  return (
-    <SectionCard>
-      <SectionTitle icon={Key} title="API Keys" desc="Keys configured in your .env file — active across all tools" color="#10b981" />
-
-      <div className="flex items-start gap-3 mb-5 p-3 bg-green-500/5 border border-green-500/15 rounded-xl">
-        <CheckCircle className="w-4 h-4 text-green-400 flex-shrink-0 mt-0.5" />
-        <p className="text-xs text-green-300">All keys are loaded from your <code className="bg-gray-800 px-1 rounded">.env</code> file and applied automatically. No manual entry needed.</p>
-      </div>
-
-      <div className="space-y-4">
-        {envKeys.map(({ key, label, value, hint, color, badge }) => (
-          <div key={key} className="bg-gray-800/50 border border-gray-700 rounded-xl px-4 py-3">
-            <div className="flex items-center justify-between mb-2">
-              <div className="flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: color }} />
-                <span className="text-xs font-medium text-gray-300">{label}</span>
-                {badge && <span className="text-xs px-1.5 py-0.5 bg-indigo-500/20 text-indigo-400 rounded-full border border-indigo-500/20">{badge}</span>}
-              </div>
-              {value ? (
-                <span className="flex items-center gap-1 text-xs text-green-400">
-                  <CheckCircle className="w-3 h-3" /> Configured
-                </span>
-              ) : (
-                <span className="text-xs text-red-400">Not set</span>
-              )}
-            </div>
-            <div className="flex items-center gap-2">
-              <code className="flex-1 text-xs text-gray-400 bg-gray-900 rounded-lg px-3 py-2 font-mono truncate">
-                {value ? (show[key] ? value : maskKey(value)) : 'Not configured in .env'}
-              </code>
-              {value && (
-                <button
-                  onClick={() => setShow(s => ({ ...s, [key]: !s[key] }))}
-                  className="p-2 text-gray-500 hover:text-gray-300 transition-colors flex-shrink-0"
-                  title={show[key] ? 'Hide' : 'Show'}>
-                  {show[key] ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
-                </button>
-              )}
-            </div>
-            <p className="text-xs text-gray-600 mt-1.5">{hint}</p>
-          </div>
-        ))}
-      </div>
-
-      <div className="mt-5 p-3 bg-gray-800/40 border border-gray-700 rounded-xl">
-        <p className="text-xs font-medium text-gray-400 mb-1">To update a key</p>
-        <p className="text-xs text-gray-500">Edit your <code className="bg-gray-900 px-1 rounded">.env</code> file and restart the dev server, or update the environment variable in your Vercel project settings.</p>
       </div>
     </SectionCard>
   )
@@ -457,7 +368,7 @@ export default function Settings() {
 
   const content = {
     profile: <ProfileSection currentUser={currentUser} />,
-    apikeys: <ApiKeysSection />,
+
     credits: <CreditsSection />,
     appearance: <AppearanceSection isDark={isDark} toggleTheme={toggleTheme} />,
     notifications: <NotificationsSection />,

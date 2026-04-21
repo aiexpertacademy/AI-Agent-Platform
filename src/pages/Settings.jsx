@@ -2,8 +2,8 @@ import { useState } from 'react'
 import {
   User, Zap, Palette, Bell, Shield,
   Save, Check, RefreshCw, TrendingUp,
-  TrendingDown, Sun, Moon, Zap, Crown, Star, Plus, Trash2,
-  Upload, Mail, Lock, Globe, AlertTriangle, CheckCircle,
+  TrendingDown, Sun, Moon, Crown, Star, Plus, Trash2,
+  Lock, Globe, AlertTriangle, CheckCircle,
 } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 import { useTheme } from '../contexts/ThemeContext'

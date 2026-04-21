@@ -1,7 +1,7 @@
 const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY
 
 // Model fallback chain: primary → fallback → last resort
-const MODELS = ['gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-2.0-flash-lite']
+const MODELS = ['gemini-2.0-flash', 'gemini-2.0-flash-lite']
 
 function friendlyError(status, msg = '') {
   if (status === 429) return 'API rate limit reached — too many requests. Please wait 30 seconds and try again.'

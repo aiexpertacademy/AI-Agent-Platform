@@ -47,6 +47,7 @@ import SpamDetector from './pages/tools/SpamDetector'
 import AdGenerator from './pages/tools/AdGenerator'
 import AdVideoGenerator from './pages/tools/AdVideoGenerator'
 import WhatsAppChatbot from './pages/tools/WhatsAppChatbot'
+import Settings from './pages/Settings'
 
 function AuthRedirect({ children }) {
   const { currentUser, loading } = useAuth()
@@ -76,7 +77,7 @@ export default function App() {
         <Route path="documents" element={<DocumentsHub />} />
         <Route path="data" element={<DataHub />} />
         <Route path="playground" element={<PlaygroundPage />} />
-        <Route path="settings" element={<Navigate to="/" replace />} />
+        <Route path="settings" element={<Settings />} />
 
         {/* Tool routes */}
         <Route path="tools/chatbot" element={<AIChatbot />} />

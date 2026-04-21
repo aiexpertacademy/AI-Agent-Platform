@@ -1,5 +1,5 @@
 const GEMINI_API_KEY = import.meta.env.VITE_NANO_BANANA_API_KEY || import.meta.env.VITE_GEMINI_API_KEY
-const MODEL = 'gemini-2.0-flash-exp'
+const MODEL = 'gemini-2.5-flash-image'
 const BASE_URL = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent`
 
 export async function generateNanoBananaImage(prompt, { aspectRatio = '16:9', quality = '1K' } = {}) {

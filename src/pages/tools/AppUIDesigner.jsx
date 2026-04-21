@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Layout, Loader2, Palette, Type, Layers, Copy, Check, ChevronDown, ChevronUp, Figma, Smartphone, Monitor, Tablet, RefreshCw, Sparkles, Eye, Component, Navigation, ArrowRight, Box } from 'lucide-react'
 import ToolLayout from '../../components/ToolLayout'
-import { callGemini } from '../../config/gemini'
+import { callGemini, parseGeminiJSON } from '../../config/gemini'
 
 const platforms = [
   { id: 'mobile', label: 'Mobile App', icon: Smartphone },
@@ -205,8 +205,7 @@ Generate 6-12 screens, 8-15 components, and 2-4 user flows. Be extremely detaile
         }
       )
 
-      const cleaned = reply.replace(/```json\s*/g, '').replace(/```\s*/g, '').trim()
-      setResult(JSON.parse(cleaned))
+      setResult(parseGeminiJSON(reply))
     } catch (err) {
       setResult({ error: err.message })
     }

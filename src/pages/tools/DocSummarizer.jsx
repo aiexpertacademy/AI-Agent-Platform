@@ -8,7 +8,7 @@ import {
   ChevronRight, Tag, Zap,
 } from 'lucide-react'
 import ToolLayout from '../../components/ToolLayout'
-import { callGemini } from '../../config/gemini'
+import { callGemini, parseGeminiJSON } from '../../config/gemini'
 
 // ── Colour palette for documents ───────────────────────────────────────────────
 const DOC_COLORS = ['#6366f1', '#ec4899', '#f59e0b', '#10b981', '#ef4444', '#06b6d4', '#a855f7']
@@ -133,12 +133,7 @@ function parseSentiment(text) {
 }
 
 function parseEntities(text) {
-  try {
-    const raw = text.replace(/^```json\s*/i, '').replace(/```\s*$/i, '').trim()
-    return JSON.parse(raw)
-  } catch {
-    return null
-  }
+  try { return parseGeminiJSON(text) } catch { return null }
 }
 
 function downloadFile(filename, content) {

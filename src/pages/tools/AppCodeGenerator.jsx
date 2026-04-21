@@ -11,7 +11,7 @@ import 'prismjs/components/prism-yaml'
 import 'prismjs/components/prism-css'
 import 'prismjs/themes/prism-tomorrow.css'
 import ToolLayout from '../../components/ToolLayout'
-import { callGemini } from '../../config/gemini'
+import { callGemini, parseGeminiJSON } from '../../config/gemini'
 
 const platforms = [
   { id: 'react-native', label: 'React Native', icon: Smartphone, lang: 'jsx', color: '#61dafb' },
@@ -483,7 +483,8 @@ CRITICAL RULES:
         }
       )
 
-      const parsed = safeParseJSON(reply)
+      let parsed
+      try { parsed = safeParseJSON(reply) } catch { parsed = parseGeminiJSON(reply) }
 
       // Post-process: unescape \\n in code strings to real newlines for display
       if (parsed.files) {

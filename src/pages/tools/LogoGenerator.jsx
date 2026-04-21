@@ -1,7 +1,7 @@
 import { useState, useRef, useCallback } from 'react'
 import { Hexagon, Loader2, Download, RefreshCw, Sparkles, Copy, Check, ChevronDown, ChevronUp, Palette, Type, Image, Code, Eye, Zap } from 'lucide-react'
 import ToolLayout from '../../components/ToolLayout'
-import { callGemini } from '../../config/gemini'
+import { callGemini, parseGeminiJSON } from '../../config/gemini'
 
 const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY
 
@@ -26,7 +26,7 @@ function ExpandSection({ title, icon: Icon, defaultOpen, children }) {
 
 async function generateLogoImage(prompt) {
   const response = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${GEMINI_API_KEY}`,
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image:generateContent?key=${GEMINI_API_KEY}`,
     {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -81,44 +81,67 @@ Logo Type: ${logoType}
 ${extraNotes ? `Notes: ${extraNotes}` : ''}`
 
     try {
-      // Step 1: Generate design brief + SVG + image prompt
-      setLoadingPhase('Creating design brief & SVG...')
+      // Step 1: Design brief only (no SVG — keeps JSON small and safe)
+      setLoadingPhase('Creating design brief...')
       const briefReply = await callGemini(
-        `You are an expert logo designer. Create a complete logo package for:
+        `You are an expert logo designer. Create a design brief for:
 
 ${context}
 
-Return a JSON object (no markdown, no code fences) with:
+Return ONLY a JSON object (no markdown, no code fences):
 {
   "brief": {
-    "concept": "2-3 sentences describing the overall logo concept and inspiration",
+    "concept": "2-3 sentences describing the logo concept",
     "symbolism": "What the icon/shapes represent",
     "typography": "Recommended font family and why",
     "primaryColor": "#hex",
     "secondaryColor": "#hex",
     "accentColor": "#hex",
-    "colorRationale": "Why these colors work for this brand",
-    "usageTips": "Brief advice on where and how to use this logo"
+    "colorRationale": "Why these colors work",
+    "usageTips": "Where and how to use this logo"
   },
-  "svg": "Complete, valid SVG code for the logo. Use a viewBox of 0 0 400 200. Include the brand name text using <text> elements with appropriate font styling. Use shapes, paths, and colors that match the brief. Make it visually polished and professional. The SVG must be self-contained with no external dependencies.",
   "variations": [
     { "name": "Light Background", "bgColor": "#ffffff", "note": "Primary usage" },
     { "name": "Dark Background", "bgColor": "#111827", "note": "Inverted colors" },
-    { "name": "Single Color", "bgColor": "#f3f4f6", "note": "For embossing / stamps" }
+    { "name": "Single Color", "bgColor": "#f3f4f6", "note": "For embossing" }
   ],
-  "imagePrompt": "A highly detailed DALL-E / Gemini image generation prompt to create a photorealistic mockup of this logo on a business card, letterhead, or product. Include specific style, lighting, and composition details."
-}
-
-CRITICAL: The SVG must be valid, well-structured, visually appealing, and render the brand name "${brandName}" prominently. Use professional design principles. No placeholder text.`,
+  "imagePrompt": "Detailed prompt for a photorealistic mockup of this logo on a business card or product."
+}`,
         {
-          systemInstruction: 'You are a world-class brand identity designer. Return only valid JSON. The SVG must be complete and renderable.',
+          systemInstruction: 'You are a world-class brand identity designer. Return only valid JSON with no extra text.',
           temperature: 0.8,
-          maxTokens: 6144,
+          maxTokens: 2048,
         }
       )
+      const parsed = parseGeminiJSON(briefReply)
 
-      const cleaned = briefReply.replace(/```json\s*/g, '').replace(/```\s*/g, '').trim()
-      const parsed = JSON.parse(cleaned)
+      // Step 2: SVG as plain text (separate call — no JSON truncation risk)
+      setLoadingPhase('Generating SVG logo...')
+      let svgCode = ''
+      try {
+        const svgReply = await callGemini(
+          `Create a complete, valid SVG logo for a brand called "${brandName}" (${industry}, ${style} style, ${logoType}).
+Colors: primary ${parsed.brief?.primaryColor || '#6366f1'}, secondary ${parsed.brief?.secondaryColor || '#818cf8'}.
+Concept: ${parsed.brief?.concept || ''}
+
+Rules:
+- viewBox="0 0 400 200"
+- Include brand name "${brandName}" as <text> element
+- Use shapes, paths, and fills — no external images or fonts
+- Self-contained, renders in a browser <img> tag
+- Return ONLY the raw SVG code starting with <svg and ending with </svg>. No explanation.`,
+          {
+            systemInstruction: 'Return only raw SVG code. No markdown, no explanation, no code fences.',
+            temperature: 0.7,
+            maxTokens: 4096,
+          }
+        )
+        // Extract just the SVG tag
+        const svgMatch = svgReply.match(/<svg[\s\S]*<\/svg>/i)
+        svgCode = svgMatch ? svgMatch[0] : svgReply.trim()
+      } catch { /* SVG is optional */ }
+
+      parsed.svg = svgCode
 
       // Step 2: Generate logo image with Gemini
       setLoadingPhase('Generating logo image...')

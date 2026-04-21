@@ -599,11 +599,17 @@ Generate the most impressive, visually stunning, fully animated website possible
       )
 
       let html = reply.trim()
+      // Strip markdown fences
       if (html.startsWith('```')) html = html.replace(/^```(?:html)?\s*\n?/, '').replace(/\n?\s*```\s*$/, '').trim()
-      if (!html.toLowerCase().startsWith('<!doctype')) {
-        const idx = html.toLowerCase().indexOf('<!doctype')
-        if (idx > 0) html = html.slice(idx)
-      }
+      // Extract from <!DOCTYPE or <html>
+      const lower = html.toLowerCase()
+      const dtIdx = lower.indexOf('<!doctype')
+      const htmlIdx = lower.indexOf('<html')
+      const startIdx = dtIdx !== -1 ? dtIdx : htmlIdx !== -1 ? htmlIdx : -1
+      if (startIdx > 0) html = html.slice(startIdx)
+      // Ensure it ends with </html>
+      const endIdx = html.toLowerCase().lastIndexOf('</html>')
+      if (endIdx !== -1) html = html.slice(0, endIdx + 7)
       setHtmlCode(html)
     } catch (err) {
       setHtmlCode(`<!DOCTYPE html><html><body style="font-family:sans-serif;padding:40px;background:#0a0a0a;color:#ef4444"><h1>Error</h1><p>${err.message}</p></body></html>`)
@@ -901,7 +907,7 @@ Generate the most impressive, visually stunning, fully animated website possible
                 className="flex items-center gap-1 px-2.5 py-1.5 bg-gray-800 hover:bg-gray-700 text-gray-400 text-xs rounded-lg cursor-pointer transition-colors">
                 <Download className="w-3.5 h-3.5" />
               </button>
-              <button onClick={() => { const b=new Blob([htmlCode],{type:'text/html'}); window.open(URL.createObjectURL(b),'_blank') }}
+              <button onClick={() => { const b=new Blob([htmlCode],{type:'text/html'}); const a=document.createElement('a'); a.href=URL.createObjectURL(b); a.target='_blank'; a.click() }}
                 className="flex items-center gap-1 px-2.5 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-medium rounded-lg cursor-pointer transition-colors">
                 <ExternalLink className="w-3.5 h-3.5" />
                 <span className="hidden sm:inline">Open</span>
@@ -957,7 +963,7 @@ Generate the most impressive, visually stunning, fully animated website possible
               {(viewMode === 'preview' || viewMode === 'split') && (
                 <DeviceFrame device={viewMode === 'split' ? 'desktop' : device}>
                   <iframe ref={iframeRef} srcDoc={currentHtml} title="Preview" className="w-full border-0 bg-white"
-                    style={{ height: iframeHeight, display: 'block' }} sandbox="allow-scripts allow-same-origin" />
+                    style={{ height: iframeHeight, display: 'block' }} />
                 </DeviceFrame>
               )}
               {(viewMode === 'code' || viewMode === 'split') && (

@@ -2,7 +2,7 @@ import { useState, useRef } from 'react'
 import { TrendingUp, Loader2, RefreshCw, Sparkles, Download, BarChart3, Target, Lightbulb, Globe, Users, ChevronDown, ChevronUp, ArrowUpRight, ArrowDownRight, Minus, Copy, Check, Clock, Zap } from 'lucide-react'
 import html2pdf from 'html2pdf.js'
 import ToolLayout from '../../components/ToolLayout'
-import { callGemini } from '../../config/gemini'
+import { callGemini, parseGeminiJSON } from '../../config/gemini'
 
 const presetIndustries = [
   'Artificial Intelligence', 'FinTech', 'HealthTech', 'E-commerce', 'Cybersecurity',
@@ -212,8 +212,7 @@ Use REAL data, REAL company names, and REAL numbers. This is a professional anal
         }
       )
 
-      const cleaned = reply.replace(/```json\s*/g, '').replace(/```\s*/g, '').trim()
-      setReport(JSON.parse(cleaned))
+      setReport(parseGeminiJSON(reply))
     } catch (err) {
       setReport({ error: err.message })
     }

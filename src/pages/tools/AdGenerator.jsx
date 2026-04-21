@@ -6,7 +6,7 @@ import { useAuth } from '../../contexts/AuthContext'
 import { api } from '../../services/api'
 
 const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY
-const GEMINI_IMAGE_MODEL = 'gemini-2.0-flash-exp'
+const GEMINI_IMAGE_MODEL = 'gemini-2.5-flash-image'
 const API_URL = (model) => `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`
 
 // Admin emails — add your email here

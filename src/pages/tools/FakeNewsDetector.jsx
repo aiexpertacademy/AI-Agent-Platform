@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { ShieldAlert, Loader2, AlertTriangle, CheckCircle2, XCircle, HelpCircle, ChevronDown, ChevronUp, Copy, Check, RefreshCw, Sparkles, Eye, Brain, MessageSquare, Scale, Search, Flag, ThumbsUp, ThumbsDown, Info } from 'lucide-react'
 import ToolLayout from '../../components/ToolLayout'
-import { callGemini } from '../../config/gemini'
+import { callGemini, parseGeminiJSON } from '../../config/gemini'
 
 const sampleHeadlines = [
   'Scientists Discover New Planet Made Entirely of Diamond in Our Solar System',
@@ -171,12 +171,10 @@ Be objective and thorough. Score 0-100 for each dimension (100 = most credible).
         {
           systemInstruction: 'You are a senior fact-checker at a major news organization. Be thorough, objective, and specific. Return only valid JSON.',
           temperature: 0.3,
-          maxTokens: 6144,
+          maxTokens: 8192,
         }
       )
-
-      const cleaned = reply.replace(/```json\s*/g, '').replace(/```\s*/g, '').trim()
-      const parsed = JSON.parse(cleaned)
+      const parsed = parseGeminiJSON(reply)
       setResult(parsed)
 
       setHistory(prev => [{

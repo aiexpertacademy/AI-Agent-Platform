@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { Languages, Loader2, Copy, Check, ArrowLeftRight, Volume2, VolumeX, Mic, MicOff, Trash2, Clock, Star, ChevronDown, X, Sparkles } from 'lucide-react'
 import ToolLayout from '../../components/ToolLayout'
-import { callGemini } from '../../config/gemini'
+import { callGemini, parseGeminiJSON } from '../../config/gemini'
 import { useAuth } from '../../contexts/AuthContext'
 import { api } from '../../services/api'
 
@@ -207,8 +207,7 @@ Return ONLY valid JSON (no markdown, no code fences):
 }`,
         { temperature: 0.3 }
       )
-      const cleaned = reply.replace(/```json\s*/g, '').replace(/```\s*/g, '').trim()
-      const parsed = JSON.parse(cleaned)
+      const parsed = parseGeminiJSON(reply)
       translated = parsed.translation || ''
       setResult(translated)
       const alts = []
@@ -339,7 +338,11 @@ Return ONLY valid JSON (no markdown, no code fences):
       }
     }
 
-    recognition.onerror = () => setListening(false)
+    recognition.onerror = (e) => {
+      if (e.error === 'not-allowed') alert('Microphone access denied. Please allow microphone access in your browser settings.')
+      setListening(false)
+      listeningRef.current = false
+    }
     recognition.onend = () => {
       // Auto-restart if user hasn't manually stopped (Chrome kills it after ~60s)
       if (listeningRef.current && recognitionRef.current) {

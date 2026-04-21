@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Compass, Loader2, ChevronDown, ChevronUp, Briefcase, GraduationCap, Target, TrendingUp, Star, BookOpen, Award, ArrowRight, Sparkles, RotateCcw } from 'lucide-react'
 import ToolLayout from '../../components/ToolLayout'
-import { callGemini } from '../../config/gemini'
+import { callGemini, parseGeminiJSON } from '../../config/gemini'
 
 const experienceLevels = ['Student / Fresher', '0-2 Years', '3-5 Years', '6-10 Years', '10+ Years', 'Career Changer']
 const industries = ['Technology', 'Finance', 'Healthcare', 'Education', 'Marketing', 'Design', 'Data Science', 'Engineering', 'Business', 'Other']
@@ -143,12 +143,10 @@ Generate 5-8 roadmap steps, 6-10 skills to learn, 4-6 target jobs, 4-6 resources
         {
           systemInstruction: 'You are a world-class career advisor. Return only valid JSON with no extra text or markdown formatting.',
           temperature: 0.7,
-          maxTokens: 6144,
+          maxTokens: 8192,
         }
       )
-
-      const cleaned = reply.replace(/```json\s*/g, '').replace(/```\s*/g, '').trim()
-      const parsed = JSON.parse(cleaned)
+      const parsed = parseGeminiJSON(reply)
       setRoadmap(parsed)
     } catch (err) {
       setError(`Failed to generate roadmap: ${err.message}`)

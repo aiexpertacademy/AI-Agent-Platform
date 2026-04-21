@@ -466,5 +466,15 @@ app.post('/api/resume-templates/seed', async (req, res) => {
 // ── Start ──────────────────────────────────────────────────────────────────────
 const PORT = process.env.PORT || 3001
 connectDB()
-  .then(() => app.listen(PORT, () => console.log(`🚀 API server running on http://localhost:${PORT}`)))
+  .then(() => {
+    const server = app.listen(PORT, () => console.log(`🚀 API server running on http://localhost:${PORT}`))
+    server.on('error', (err) => {
+      if (err.code === 'EADDRINUSE') {
+        console.error(`\n❌ Port ${PORT} is already in use. Kill the old process first:\n   Run: npx kill-port ${PORT}\n   Or close the previous terminal running the server.\n`)
+      } else {
+        console.error('Server error:', err)
+      }
+      process.exit(1)
+    })
+  })
   .catch((err) => { console.error('MongoDB connection failed:', err); process.exit(1) })

@@ -55,7 +55,15 @@ export default function SpeechToText() {
     }
 
     recognition.onerror = (event) => {
-      setError(`Recognition error: ${event.error}`)
+      const msgs = {
+        'not-allowed': 'Microphone access denied. Click the lock icon in your browser address bar and allow microphone access, then try again.',
+        'audio-capture': 'No microphone found. Please connect a microphone and try again.',
+        'no-speech': 'No speech detected. Please speak clearly and try again.',
+        'network': 'Network error during speech recognition. Check your connection.',
+        'aborted': '',
+      }
+      const msg = msgs[event.error] ?? `Speech recognition error: ${event.error}. Try using Chrome or Edge.`
+      if (msg) setError(msg)
       setIsListening(false)
     }
 

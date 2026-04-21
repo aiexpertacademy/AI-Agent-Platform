@@ -57,7 +57,7 @@ const DEFAULT_CFG = {
   phone: '', countryCode: '+91', businessId: '', phoneId: '', apiToken: '',
   webhookUrl: 'https://api.aiexpertacademy.com/wa/webhook',
   systemPrompt: PROMPT_TEMPLATES[0].prompt,
-  model: 'gemini-2.0-flash', apiKey: '', temperature: 0.7,
+  model: 'gemini-2.5-flash', apiKey: '', temperature: 0.7,
   header: '🤖 Powered by AI', footer: 'AI Expert Academy',
   stopKeywords: ['human', 'agent', 'support', 'help me'],
   retryLimit: 3, fallback: 'I\'m connecting you to a human agent. Please wait a moment.',
@@ -214,7 +214,7 @@ function AIEngineModule({ cfg, setCfg }) {
           <label className="block text-xs font-medium text-gray-400 mb-1">AI Model</label>
           <select value={cfg.model} onChange={e => setCfg({ ...cfg, model: e.target.value })}
             className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-green-500">
-            <option value="gemini-2.0-flash">Gemini 2.0 Flash</option>
+            <option value="gemini-2.5-flash">Gemini 2.0 Flash</option>
             <option value="gemini-1.5-pro">Gemini 1.5 Pro</option>
             <option value="gpt-4o">GPT-4o</option>
             <option value="gpt-4o-mini">GPT-4o Mini</option>

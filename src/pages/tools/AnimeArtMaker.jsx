@@ -1,7 +1,7 @@
 import { useState, useRef } from 'react'
 import { Sparkles, Loader2, Download, RefreshCw, Upload, X, Image as ImageIcon, Palette, Eye, Wand2, Copy, Check, ChevronDown, ChevronUp, Star } from 'lucide-react'
 import ToolLayout from '../../components/ToolLayout'
-import { callGemini } from '../../config/gemini'
+import { callGemini, parseGeminiJSON } from '../../config/gemini'
 
 const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY
 
@@ -38,7 +38,7 @@ function fileToBase64(file) {
 // Analyze uploaded photo with Gemini vision
 async function analyzePhoto(base64, mimeType) {
   const response = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`,
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`,
     {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -60,15 +60,20 @@ Be very specific and visual. This description will be used to generate anime art
       }),
     }
   )
-  if (!response.ok) throw new Error('Photo analysis failed')
+  if (!response.ok) {
+    const err = await response.json().catch(() => ({}))
+    throw new Error(err.error?.message || 'Photo analysis failed')
+  }
   const data = await response.json()
-  return data.candidates?.[0]?.content?.parts?.[0]?.text || ''
+  const parts = data.candidates?.[0]?.content?.parts || []
+  const text = parts.filter(p => p.text && !p.thought).map(p => p.text).join('\n').trim()
+  return text || parts.find(p => p.text)?.text || ''
 }
 
 // Generate anime image with Gemini image model
 async function generateAnimeImage(prompt) {
   const response = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${GEMINI_API_KEY}`,
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image:generateContent?key=${GEMINI_API_KEY}`,
     {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -114,11 +119,10 @@ Return a JSON object (no markdown, no code fences):
     {
       systemInstruction: 'You are a master anime artist and prompt engineer. Return only valid JSON.',
       temperature: 0.8,
-      maxTokens: 2048,
+      maxTokens: 4096,
     }
   )
-  const cleaned = reply.replace(/```json\s*/g, '').replace(/```\s*/g, '').trim()
-  return JSON.parse(cleaned)
+  return parseGeminiJSON(reply)
 }
 
 export default function AnimeArtMaker() {

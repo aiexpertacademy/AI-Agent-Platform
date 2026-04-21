@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react'
+import { useState } from 'react'
 import {
   User, Key, Coins, Palette, Bell, Shield, ChevronRight,
   Save, Eye, EyeOff, Copy, Check, RefreshCw, TrendingUp,
@@ -89,63 +89,89 @@ function ProfileSection({ currentUser }) {
   )
 }
 
+function maskKey(val) {
+  if (!val) return null
+  if (val.length <= 8) return '••••••••'
+  return val.slice(0, 6) + '••••••••' + val.slice(-4)
+}
+
 function ApiKeysSection() {
-  const [keys, setKeys] = useState({
-    gemini: localStorage.getItem('api_gemini') || '',
-    openai: localStorage.getItem('api_openai') || '',
-    stability: localStorage.getItem('api_stability') || '',
-    elevenlabs: localStorage.getItem('api_elevenlabs') || '',
-    newsapi: localStorage.getItem('api_newsapi') || '',
-  })
   const [show, setShow] = useState({})
-  const [saved, setSaved] = useState({})
 
-  function saveKey(k) {
-    localStorage.setItem(`api_${k}`, keys[k])
-    setSaved(s => ({ ...s, [k]: true }))
-    setTimeout(() => setSaved(s => ({ ...s, [k]: false })), 2000)
-  }
-
-  const apiList = [
-    { key: 'gemini', label: 'Google Gemini API Key', placeholder: 'AIza...', hint: 'Get from aistudio.google.com', color: '#4285f4' },
-    { key: 'openai', label: 'OpenAI API Key', placeholder: 'sk-...', hint: 'Get from platform.openai.com', color: '#10a37f' },
-    { key: 'stability', label: 'Stability AI Key', placeholder: 'sk-...', hint: 'Get from platform.stability.ai', color: '#8b5cf6' },
-    { key: 'elevenlabs', label: 'ElevenLabs API Key', placeholder: 'el-...', hint: 'Get from elevenlabs.io', color: '#f59e0b' },
-    { key: 'newsapi', label: 'NewsAPI Key', placeholder: 'Enter your NewsAPI key', hint: 'Get from newsapi.org', color: '#ef4444' },
+  const envKeys = [
+    {
+      key: 'gemini',
+      label: 'Google Gemini API Key',
+      value: import.meta.env.VITE_GEMINI_API_KEY,
+      hint: 'Used by all AI generation tools',
+      color: '#4285f4',
+      badge: 'Primary',
+    },
+    {
+      key: 'newsapi',
+      label: 'NewsAPI Key',
+      value: import.meta.env.VITE_NEWS_API_KEY,
+      hint: 'Used by Latest News tool',
+      color: '#ef4444',
+      badge: null,
+    },
+    {
+      key: 'firebase',
+      label: 'Firebase API Key',
+      value: import.meta.env.VITE_FIREBASE_API_KEY,
+      hint: 'Used for Google OAuth authentication',
+      color: '#f59e0b',
+      badge: null,
+    },
   ]
 
   return (
     <SectionCard>
-      <SectionTitle icon={Key} title="API Keys" desc="Manage your third-party API integrations" color="#10b981" />
-      <div className="space-y-5">
-        {apiList.map(({ key, label, placeholder, hint, color }) => (
-          <div key={key}>
-            <label className="block text-xs font-medium text-gray-400 mb-1.5 flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full inline-block" style={{ background: color }} />
-              {label}
-            </label>
-            <div className="flex gap-2">
-              <div className="relative flex-1">
-                <input
-                  type={show[key] ? 'text' : 'password'}
-                  value={keys[key]}
-                  onChange={e => setKeys(k => ({ ...k, [key]: e.target.value }))}
-                  placeholder={placeholder}
-                  className="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-2.5 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-indigo-500 pr-10 transition-colors"
-                />
-                <button onClick={() => setShow(s => ({ ...s, [key]: !s[key] }))}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300">
-                  {show[key] ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                </button>
+      <SectionTitle icon={Key} title="API Keys" desc="Keys configured in your .env file — active across all tools" color="#10b981" />
+
+      <div className="flex items-start gap-3 mb-5 p-3 bg-green-500/5 border border-green-500/15 rounded-xl">
+        <CheckCircle className="w-4 h-4 text-green-400 flex-shrink-0 mt-0.5" />
+        <p className="text-xs text-green-300">All keys are loaded from your <code className="bg-gray-800 px-1 rounded">.env</code> file and applied automatically. No manual entry needed.</p>
+      </div>
+
+      <div className="space-y-4">
+        {envKeys.map(({ key, label, value, hint, color, badge }) => (
+          <div key={key} className="bg-gray-800/50 border border-gray-700 rounded-xl px-4 py-3">
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: color }} />
+                <span className="text-xs font-medium text-gray-300">{label}</span>
+                {badge && <span className="text-xs px-1.5 py-0.5 bg-indigo-500/20 text-indigo-400 rounded-full border border-indigo-500/20">{badge}</span>}
               </div>
-              <button onClick={() => saveKey(key)}
-                className={`px-4 py-2.5 text-xs font-medium rounded-xl transition-colors ${saved[key] ? 'bg-green-600/20 text-green-400 border border-green-500/20' : 'bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-400 border border-indigo-500/20'}`}>
-                {saved[key] ? 'Saved' : 'Save'}
-              </button>
+              {value ? (
+                <span className="flex items-center gap-1 text-xs text-green-400">
+                  <CheckCircle className="w-3 h-3" /> Configured
+                </span>
+              ) : (
+                <span className="text-xs text-red-400">Not set</span>
+              )}
             </div>
-            <p className="text-xs text-gray-600 mt-1">{hint}</p>
+            <div className="flex items-center gap-2">
+              <code className="flex-1 text-xs text-gray-400 bg-gray-900 rounded-lg px-3 py-2 font-mono truncate">
+                {value ? (show[key] ? value : maskKey(value)) : 'Not configured in .env'}
+              </code>
+              {value && (
+                <button
+                  onClick={() => setShow(s => ({ ...s, [key]: !s[key] }))}
+                  className="p-2 text-gray-500 hover:text-gray-300 transition-colors flex-shrink-0"
+                  title={show[key] ? 'Hide' : 'Show'}>
+                  {show[key] ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                </button>
+              )}
+            </div>
+            <p className="text-xs text-gray-600 mt-1.5">{hint}</p>
           </div>
         ))}
+      </div>
+
+      <div className="mt-5 p-3 bg-gray-800/40 border border-gray-700 rounded-xl">
+        <p className="text-xs font-medium text-gray-400 mb-1">To update a key</p>
+        <p className="text-xs text-gray-500">Edit your <code className="bg-gray-900 px-1 rounded">.env</code> file and restart the dev server, or update the environment variable in your Vercel project settings.</p>
       </div>
     </SectionCard>
   )
